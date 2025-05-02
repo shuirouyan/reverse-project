@@ -1,24 +1,3 @@
-
-const { JSDOM } = require('jsdom');
-const dom = new JSDOM('<!DOCTYPE html>', {
-  url: 'http://localhost',
-  referrer: 'http://localhost',
-  contentType: 'text/html',
-  includeNodeLocations: true,
-  storageQuota: 10000000
-});
-
-// 将 JSDOM 中的全局对象挂载到 Node.js 的全局对象上
-global.window = dom.window;
-global.document = dom.window.document;
-global.navigator = dom.window.navigator;
-global.localStorage = dom.window.localStorage;
-global.sessionStorage = dom.window.sessionStorage;
-
-// 模拟 requestAnimationFrame 和 cancelAnimationFrame
-global.requestAnimationFrame = (callback) => setTimeout(callback, 0);
-global.cancelAnimationFrame = (id) => clearTimeout(id);
-
 import axios from 'axios'
 import Qs from 'querystring'
 
@@ -443,12 +422,3 @@ const deletes = (url, params) => {
 // }
 
 // export default service
-postJson('/cms/article/page', {
-  "current": current,
-  "size": 10000,
-  "condition": {
-    "columnId": "21",
-    "title": "",
-    "projectType": ""
-  }
-})

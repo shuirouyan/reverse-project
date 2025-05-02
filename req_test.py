@@ -34,9 +34,22 @@ def handler_json(origin_json):
       with open(file_name, 'a+', encoding='utf-8') as f:
         f.write(str(item['id']) + ',' + item['title'] + ',' + item['publishedTime'] + '\n')
 
+def handler_json2(origin_json):
+  file_name = 'handlerjson/公开招标中标结果公告.csv'
+  with open(origin_json, 'r', encoding='utf-8') as f:
+    for line, item in enumerate(f, start=1):
+      # print(f'line:{line}')
+      item = item.strip()
+      item = item[:-1]
+      item_json_arr = json.loads(item)
+      for item_json in item_json_arr['data']['records']:
+        print(f'line:{line} item_json:{item_json}')
+        with open(file_name, 'a+', encoding='utf-8') as f:
+          f.write(str(item_json['id']) + ',' + item_json['title'] + ',' + item_json['publishedTime'] + '\n')
 
 
 if  __name__ == "__main__":
   # get_content()
-  for i in range(21, 27):
-    handler_json(f'D:/temp/scrapy_crawl/page_decoded_data{str(i)}.json')
+  # for i in range(21, 27):
+    # handler_json(f'D:/temp/scrapy_crawl/page_decoded_data{str(i)}.json')
+  handler_json2('D:/temp/scrapy_crawl/handlerjson/nodejs-axios公开招标中标结果公告.json')

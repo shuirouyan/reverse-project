@@ -47,21 +47,40 @@ async function sendGetRequest(current) {
                 'Referer': 'https://www.cnpcbidding.com/',
                 'Accept-Encoding': 'gzip, deflate, br, zstd',
                 'Accept-Language': 'zh-CN,zh;q=0.9'
+            },
+            proxy:{
+                protocol: 'http',
+                host: '127.0.0.1',
+                port: 10001
             }
         };
         const response = await axios.get('https://www.cnpcbidding.com/cms/css/bj.css', config);
         // console.log('GET 请求响应数据:', response.data);
         let res = response.data
+        if (!localStorage.getItem("time")) {
+            var timeStamp = new Date().getTime();
+            var time = JSON.parse(JSON.stringify(timeStamp));
+            localStorage.setItem("time", time);
+        }
         const css = res.split('.')
         const css1 = css[1]
         const css2 = css[2]
         const regex = /base64,([^)]+)\)/
         const c1 = css1.match(regex)
         const c2 = css2.match(regex)
-        // localStorage.setItem('logo1', c1[1])
-        // localStorage.setItem('logo2', c2[1])
-        console.log('logo1', c1[1])
-        console.log('logo2', c2[1])
+        console.log(`css1:${c1}\n${c2}`)
+        localStorage.setItem('logo1', c1[1])
+        localStorage.setItem('logo2', c2[1])
+
+        // console.log('-------------> curtime', localStorage.getItem("time"))
+        // const css = res.split('.')
+        // const css1 = css[1]
+        // const css2 = css[2]
+        // const regex = /base64,([^)]+)\)/
+        // const c1 = css1.match(regex)
+        // const c2 = css2.match(regex)
+        // console.log('logo1', c1[1])
+        // console.log('logo2', c2[1])
         let item = {
             'logo1': c1[1],
             'logo2': c2[1]
@@ -70,7 +89,7 @@ async function sendGetRequest(current) {
 
         let params = {
             "current": current,
-            "size": 10000,
+            "size": 10,
             "condition": {
                 "columnId": "21",
                 "title": "",
@@ -79,9 +98,9 @@ async function sendGetRequest(current) {
         };
         console.log(`params:${JSON.stringify(params)}`)
 
-        // let base64_str = JSON.stringify(Base64.encode(JSON.stringify(params)))
+        let base64_str = Base64.encode(JSON.stringify(params))
 
-        let base64_str = Buffer.from(JSON.stringify(params), 'utf8').toString('base64');
+        // let base64_str = Buffer.from(JSON.stringify(params), 'utf8').toString('base64');
 
 
         console.log(`base_64 str:${base64_str}`)
@@ -89,8 +108,8 @@ async function sendGetRequest(current) {
         let item_logo1 = item.logo1
         console.log(`item_logo1:${JSON.stringify(item)}`)
 
-        // encryptorJm.setPublicKey(item_logo1)
-        encryptorJm.setPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXTUYmP7Hc9YsiB8vpZQeMrnXEdBuCH0IvUZFgGKgshuAp80Zy+q7J19qG/algealatS6efDMC0KYDdwBUQLII6sW87xC1wFE4VkA3UWNpwkrwalxKg4Dw4Sm+Cp1eZGY40s8n7Snu+h35pcjK1IuOXvmxVW9plXqmtaImBQDpmQIDAQAB ")
+        encryptorJm.setPublicKey(item_logo1)
+        encryptorJm.setPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCIeiU1RTO1CCbNRo0yg4c5WbImFrGt3LuZsQ0au/g8zW4Gj0R/8MyH4Oyp4VNbHs/dDTtG1Pn6kX+60XBi57tjwIa6CMaGIzERZjliYc73A703T4BkzQP35k0ZeD+FS7EM0I906YQMKmTyG7paMAPrfzRkr4kHCY3yS6BcnT93TQIDAQAB ")
         let encData = encryptorJm.encryptLong(JSON.stringify(base64_str))
         console.log(`encData:${JSON.stringify(JSON.stringify(encData))}`)
 
@@ -103,10 +122,11 @@ async function sendGetRequest(current) {
                 'Accept-Language': 'zh-CN,zh;q=0.9',
                 'Cache-Control': 'no-cache',
                 'Connection': 'keep-alive',
-                'Content-Length': '174',
+                // 'Content-Length': '174',
+                'Content-Length': Buffer.byteLength(encData, 'utf-8'),
                 'Content-Type': 'application/json;charset=UTF-8',
                 'Host': 'www.cnpcbidding.com',
-                'MACHINE_CODE': 'null',
+                'MACHINE_CODE': 1745930200441,
                 'Origin': 'https://www.cnpcbidding.com',
                 'Pragma': 'no-cache',
                 'Referer': 'https://www.cnpcbidding.com/?',
@@ -117,22 +137,39 @@ async function sendGetRequest(current) {
                 'sec-ch-ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
                 'sec-ch-ua-mobile': '?0',
                 'sec-ch-ua-platform': 'Windows'
-            }
+            },
+            // proxy:{
+            //     protocol: 'http',
+            //     host: '10.8.0.1',
+            //     port: 11000,
+            //     auth: {
+            //         username: 'user',
+            //         password: 'Aa123456'
+            //     }
+            // },
+            proxy: {
+                protocol: 'http',
+                host: '127.0.0.1',
+                port: 10001
+            },
+            maxRedirects: 15, // 限制重定向次数
         }
-        // encData = "gy4BFLLwAFz9X7wGhC2szQ2xwCBnut/c1ksA1+vc1QgEisqh0g2IzOl6fnGvzqX1yPMR9FkN0qUMpbnC9zOirk0+hl3gGsiBXTKEGtb+u3yC48hHcu02RLvV86oKNFkc6GWYYjSB1TqT2S81YAcheu/V5GoGDT0zFKJ888NM1Ts=";
 
+        encData = "LmAOIV1in6nmOoab4L01dhcuyZFTxP8Xi2YsuOYx8ZAEVAjOX5Yoglpy+Bh93asWVqSEiSxwsqOTaLMmexWrROgfzsDOFBdEpZFHOMQvO3DTeJyoUqPW3RsxS/OWoacVjxBqeDK1KkcfdLhFUOiAbIYD1wGxtLKqmsyshNVCz+U="
         // 发送加密请求参数数据，得到加密响应数据
-        const response1 = await axios.post(url, JSON.stringify(encData), config2);
+        const response1 = await axios.post(url, encData, config2);
         console.log(`=======> response1:${JSON.stringify(response1.data)}`)
 
         if (JSON.stringify(response1.data).startsWith('"')) {
             // 解码响应数据
             var decryptorJm = new Encrypt.JSEncrypt();
-            decryptorJm.setPrivateKey("MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKs1NnxN4+Y3axzpBYEJ7F2eJkD3ZHoAlZPVmn89nsPHviNCzS82w7IFKrzh7f1SMxIynvKsn+7kx44INYSODv1RlLQj6L718/1wf4kn8DMriF3Pwwku10PpMZ8n0w+i3q9QLYAUcS9YKY8HiH9UXvfZZ+mCo0CI7HYiAan9lrkTAgMBAAECgYBho/du7P0MTo7H7h01enNS8N7gLjcfXTXxGeECsCHbhg7qDS73vkPdQxUco70Wu8pklnoP7GNJ2y/z0Lq03k+tOQbvvD+XbMeul91LOwco6Z7YvDovoxiFv8XpgvkRnYJe2UZQV1WbzIvW05fYfFoSHl+lfrmVDSmdY+J5ugkAAQJBAOW0H+cbNMZfyfJqCQVDPdnqCMlKrb6m4+UMpoWxZZ58NwzjHiBOqP2bk4FGpwUbXXu8DULuiM6lQmGg56/1uoECQQC+zsP/G97sTB+M6BwGDnctLokBFIzFnM7A/v1k9pBwFVgS0Rx9hM4CnKTz9wXCpNGmiTQmgbugbJv83z25ciGTAkEAivFrosWIJL5oT2PoVPCZhyjTa77qXbphe3kteQ0XJMiKHBd9b5llCxKCJN5xxNsKrv/PHb9frW+1OYy02HDRAQJAPXjr2DKofUSBHaph7OmYJ6xIY1q1h6zfR3pfNLnjCtk1iMpp/V5d6KWC1z6MUos7KAYoEQfW5PZYwv1BK4/DlQJAG0DOLHJQZKjFBWFbIi2WCw3UkPDpS1lBzkk7zNnzHnN65vayayWd7k5y5HsqNKHK3ww6FwtgHCwamlIr6JhUBA== ")
+            decryptorJm.setPrivateKey(localStorage.getItem('logo2'))
+            decryptorJm.setPrivateKey("MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAJzeb8ar23mB+ppgJLHdxNo59P8GtiLxbDEa4ZKbgAyW358u29m06uw1hN4H4QAcmESOHsE5LY5EuunlJA6WF1zxxrynvwxIfcfZ+a6COe+2OwnPXkaVe0N/kMWBJlU199TauxZg4Bu/GuYRQwDuEf2gQEBYroN8qtLSxIkQOjN1AgMBAAECgYB65/0D2Br5tNE4qyOVCID3ynkeZ4/FCQsP3lPmnldRhdRn0DsI9CssLzKPE/VCNSVIcWG/WqFK2qboI1SA6TAbrNJOj/ewY8JnfvCZQvqmCnj7VfwoSzHCr7B4KUM6BsdHwGBOiKHRu22oV3Xtx5LrvMFCGSeXoJ/AVnlISHiX8QJBAPnYXTN3LP0PEfvwt6EJ3MXHI9oK223r1YSO4dwDQlUumPqcpio7uI4wUR3F/J+1f4QlHrWJJNl8RRjbQd27amcCQQCgu7jsmghwQIcTa5QMJOGYpsMfySB+W+3X+Q42npmoj+MS6WrDtmxrDSShVZ/ecPoStUqgcgEWNmLb56YnbEHDAkBvXjelQkFGiBovIIzp9rh3XJ4pil9nbxFdJkedR8Kgr8W3KG6VMsvAbd8qk19ZXZD6uYUnzHslitROESYaDXmPAkBoFEaRhshyD4an76BFINioJUvyWCVfTR29HPu0KIztVoa+Z0EIDCc2RqNyiORlgJid5qC1Nj036e2n4d94ZaRLAkA8N44ILQyWSL31i4VdZdJ5QjTLX0cu5+CQDWaOMwFyTdA87pAjroybKjrJF5OmrAfUuW58Z0LYZAzLO7+PCgzJ ")
             let decData = decryptorJm.decryptLong(response1.data)
             let res_bs64_data = Base64.decode(decData)
             console.log(`res_bs64_data:${JSON.stringify(res_bs64_data)}`)
-            return res_bs64_data
+            // return res_bs64_data
+            return ""
         } else {
             let json_str = response1.data
             let html_str = `
@@ -166,11 +203,11 @@ async function request() {
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     // for (let i = 2308; i < 25548+1; i++) {
-    for (let i = 10; i < 13; i++) {
+    for (let i = 11; i < 13; i++) {
         resp = await sendGetRequest(i)
         console.log(`===========>   resp:${JSON.stringify(resp)}`)
         if (resp != '') {
-            fs.appendFileSync('D:/temp/scrapy_crawl/handlerjson/' + 'nodejs-axios公开招标中标结果公告.json', resp + ',\r\n');
+            // fs.appendFileSync('D:/temp/scrapy_crawl/handlerjson/' + 'nodejs-axios公开招标中标结果公告.json', resp + ',\r\n');
         } else {
             break
         }
